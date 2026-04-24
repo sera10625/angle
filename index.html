@@ -2,205 +2,182 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trigonometric Explorer - Antigravity Style</title>
+    <title>삼각함수 탐구 - Antigravity Full Edition</title>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --glass-bg: rgba(30, 41, 59, 0.7);
-            --primary-color: #56bbff; /* 안티그래비티 시그니처 블루 */
-            --accent-color: #ffb74d;
-            --text-main: #f8fafc;
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --bg: #1a1b2e; --sidebar-bg: #242542;
+            --primary: #4dbfff; --text: #ffffff;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
         }
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text);
             margin: 0; display: flex; height: 100vh; overflow: hidden;
         }
-        /* 왼쪽 패널 스타일 보강 */
         .sidebar {
-            width: 340px; padding: 25px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border-right: 1px solid var(--glass-border);
-            display: flex; flex-direction: column; gap: 20px;
+            width: 320px; padding: 25px; background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 15px;
+            overflow-y: auto;
         }
-        .main-content { flex: 1; display: flex; flex-direction: column; padding: 15px; gap: 15px; }
-        .plot-container { flex: 1; background: var(--glass-bg); border-radius: 16px; border: 1px solid var(--glass-border); }
+        .main-content { flex: 1; display: flex; flex-direction: column; padding: 20px; gap: 15px; }
+        .plot-card { flex: 1; background: var(--glass); border-radius: 15px; border: 1px solid var(--border); }
         
-        .control-card { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; }
-        label { display: block; font-size: 0.85rem; margin-bottom: 10px; opacity: 0.8; }
-        .val-display { float: right; color: var(--primary-color); font-weight: bold; }
-        
-        /* 왼쪽 실시간 수치 표시창 */
-        .status-panel {
-            background: rgba(86, 187, 255, 0.1);
-            border: 1px solid var(--primary-color);
-            padding: 12px; border-radius: 10px;
-            font-size: 0.9rem; line-height: 1.6;
-        }
+        .tab-group { display: flex; gap: 5px; }
+        .tab { flex: 1; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; text-align: center; cursor: pointer; transition: 0.3s; font-weight: bold; }
+        .tab.active { background: var(--primary); color: #1a1b2e; }
 
-        .tabs { display: flex; gap: 8px; }
-        .tab { flex: 1; padding: 10px; background: rgba(255,255,255,0.1); text-align: center; border-radius: 8px; cursor: pointer; transition: 0.3s; }
-        .tab.active { background: var(--primary-color); color: #0f172a; font-weight: bold; }
-        
-        button {
-            padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s;
+        .control-item { margin-bottom: 5px; }
+        label { display: block; font-size: 0.85rem; margin-bottom: 5px; opacity: 0.7; }
+        .val-badge { float: right; color: var(--primary); font-weight: bold; }
+        input[type="range"] { width: 100%; accent-color: var(--primary); cursor: pointer; }
+
+        /* 절댓값 체크박스 스타일 (image_89a58d.png 참조) */
+        .check-group {
+            background: rgba(255,255,255,0.03); padding: 12px; border-radius: 10px;
+            display: flex; flex-direction: column; gap: 10px; font-size: 0.9rem;
         }
-        .btn-reset { background: #ff4d4d; color: white; }
-        .btn-view { background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--glass-border); }
-        button:hover { transform: scale(1.02); }
+        .check-item { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .check-item input { width: 18px; height: 18px; cursor: pointer; }
+
+        .analysis-panel {
+            background: rgba(77, 191, 255, 0.1); border: 1px solid var(--primary);
+            padding: 12px; border-radius: 10px; font-size: 0.85rem; line-height: 1.6;
+        }
+        
+        button { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-reset { background: var(--primary); color: #1a1b2e; }
+        .btn-view { background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--border); }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <h2 style="margin:0; color:var(--primary-color);">삼각함수 탐구</h2>
+    <h2 style="margin:0; color:var(--primary);">삼각함수 탐구</h2>
     
-    <div class="tabs">
-        <div id="tab-sin" class="tab active" onclick="updateMode('sin')">Sin</div>
-        <div id="tab-cos" class="tab" onclick="updateMode('cos')">Cos</div>
-        <div id="tab-tan" class="tab" onclick="updateMode('tan')">Tan</div>
+    <div class="tab-group">
+        <div id="t-sin" class="tab active" onclick="setMode('sin')">Sin</div>
+        <div id="t-cos" class="tab" onclick="setMode('cos')">Cos</div>
+        <div id="t-tan" class="tab" onclick="setMode('tan')">Tan</div>
     </div>
 
-    <div class="control-card">
-        <label>진폭 (a): <span id="a-val" class="val-display">1</span></label>
-        <input type="range" id="input-a" min="0.1" max="4" step="0.1" value="1">
-        
-        <label>주기 영향 (b): <span id="b-val" class="val-display">1</span></label>
-        <input type="range" id="input-b" min="0.1" max="4" step="0.1" value="1">
-        
-        <label>x축 이동 (c): <span id="c-val" class="val-display">0π</span></label>
-        <input type="range" id="input-c" min="-6.28" max="6.28" step="0.314" value="0">
-        
-        <label>y축 이동 (d): <span id="d-val" class="val-display">0</span></label>
-        <input type="range" id="input-d" min="-3" max="3" step="0.1" value="0">
+    <div class="control-item">
+        <label>진폭 (a): <span id="v-a" class="val-badge">1</span></label>
+        <input type="range" id="i-a" min="0.1" max="4" step="0.1" value="1">
+    </div>
+    <div class="control-item">
+        <label>주기 영향 (b): <span id="v-b" class="val-badge">1</span></label>
+        <input type="range" id="i-b" min="0.1" max="4" step="0.1" value="1">
+    </div>
+    <div class="control-item">
+        <label>x축 이동 (c): <span id="v-c" class="val-badge">0π</span></label>
+        <input type="range" id="i-c" min="-6.28" max="6.28" step="0.314" value="0">
+    </div>
+    <div class="control-item">
+        <label>y축 이동 (d): <span id="v-d" class="val-badge">0</span></label>
+        <input type="range" id="i-d" min="-3" max="3" step="0.1" value="0">
     </div>
 
-    <div class="status-panel">
-        <strong>📊 실시간 분석</strong><br>
-        • 최댓값: <span id="stat-max" style="color:#ff7675">1</span><br>
-        • 최솟값: <span id="stat-min" style="color:#74b9ff">-1</span><br>
-        • 주기: <span id="stat-period" style="color:#ffeaa7">2.00π</span>
+    <div class="check-group">
+        <label class="check-item">
+            <input type="checkbox" id="abs-outer"> 전체 절댓값 $y = |f(x)|$
+        </label>
+        <label class="check-item">
+            <input type="checkbox" id="abs-inner"> 변수 절댓값 $y = f(|x|)$
+        </label>
     </div>
 
-    <div style="display:flex; flex-direction:column; gap:8px;">
-        <button class="btn-view" onclick="resetView()">그래프 보기 리셋</button>
-        <button class="btn-reset" onclick="resetParams()">전체 설정 초기화</button>
+    <div class="analysis-panel">
+        <strong>📊 분석 데이터</strong><br>
+        • 최댓값: <span id="s-max">1.00</span> | 최솟값: <span id="s-min">-1.00</span><br>
+        • 주기: <span id="s-period">2.00π</span>
     </div>
+
+    <button class="btn-reset" onclick="fullReset()">전체 설정 초기화</button>
+    <button class="btn-view" onclick="resetView()">그래프 보기 리셋</button>
 </div>
 
 <div class="main-content">
-    <div id="plot-base" class="plot-container"></div>
-    <div id="plot-dynamic" class="plot-container"></div>
+    <div id="p-base" class="plot-card"></div>
+    <div id="p-dyn" class="plot-card"></div>
 </div>
 
 <script>
-    let currentMode = 'sin';
+    let mode = 'sin';
     const PI = Math.PI;
 
-    function draw() {
-        const a = parseFloat(document.getElementById('input-a').value);
-        const b = parseFloat(document.getElementById('input-b').value);
-        const c = parseFloat(document.getElementById('input-c').value);
-        const d = parseFloat(document.getElementById('input-d').value);
+    function render() {
+        const a = parseFloat(document.getElementById('i-a').value);
+        const b = parseFloat(document.getElementById('i-b').value);
+        const c = parseFloat(document.getElementById('i-c').value);
+        const d = parseFloat(document.getElementById('i-d').value);
+        const absOuter = document.getElementById('abs-outer').checked;
+        const absInner = document.getElementById('abs-inner').checked;
 
-        // UI 업데이트
-        document.getElementById('a-val').innerText = a;
-        document.getElementById('b-val').innerText = b;
-        document.getElementById('c-val').innerText = (c/PI).toFixed(1) + "π";
-        document.getElementById('d-val').innerText = d;
+        document.getElementById('v-a').innerText = a;
+        document.getElementById('v-b').innerText = b;
+        document.getElementById('v-c').innerText = (c/PI).toFixed(1) + "π";
+        document.getElementById('v-d').innerText = d;
 
-        const x = [], yBase = [], yDyn = [];
+        const x = [], yB = [], yD = [];
         for (let i = -16; i <= 16; i += 0.02) {
             x.push(i);
-            const v1 = Math[currentMode](i);
-            const v2 = a * Math[currentMode](b * (i - c)) + d;
+            const v1 = Math[mode](i);
             
-            yBase.push(currentMode === 'tan' && Math.abs(v1) > 10 ? null : v1);
-            yDyn.push(currentMode === 'tan' && Math.abs(v2) > 10 ? null : v2);
+            // 절댓값 로직 적용
+            let inputX = absInner ? Math.abs(i - c) : (i - c);
+            let v2 = a * Math[mode](b * inputX) + d;
+            if (absOuter) v2 = Math.abs(v2);
+
+            yB.push(mode === 'tan' && Math.abs(v1) > 15 ? null : v1);
+            yD.push(mode === 'tan' && Math.abs(v2) > 15 ? null : v2);
         }
 
-        const period = (currentMode === 'tan' ? PI : 2*PI) / b;
-        const baseP = currentMode === 'tan' ? PI : 2*PI;
+        const period = (mode === 'tan' ? PI : 2*PI) / b;
+        document.getElementById('s-max').innerText = mode === 'tan' ? '∞' : Math.max(...yD.filter(v => v !== null)).toFixed(2);
+        document.getElementById('s-min').innerText = mode === 'tan' ? '-∞' : Math.min(...yD.filter(v => v !== null)).toFixed(2);
+        document.getElementById('s-period').innerText = (period/PI).toFixed(2) + "π";
 
-        // 분석창 업데이트
-        document.getElementById('stat-max').innerText = currentMode === 'tan' ? '∞' : (a + d).toFixed(2);
-        document.getElementById('stat-min').innerText = currentMode === 'tan' ? '-∞' : (-a + d).toFixed(2);
-        document.getElementById('stat-period').innerText = (period/PI).toFixed(2) + "π";
-
-        const layoutConfig = {
+        const layout = {
             paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
-            font: { color: '#f8fafc', size: 11 },
-            margin: { t: 40, b: 60, l: 50, r: 50 },
-            xaxis: {
-                gridcolor: 'rgba(255,255,255,0.05)', zerolinecolor: '#fff',
-                tickmode: 'array',
-                tickvals: [-3*PI, -2*PI, -PI, 0, PI, 2*PI, 3*PI],
-                ticktext: ['-3π', '-2π', '-π', '0', 'π', '2π', '3π']
-            },
-            yaxis: { gridcolor: 'rgba(255,255,255,0.05)', zerolinecolor: '#fff', range: [-5, 5] },
+            font: { color: '#fff', size: 11 }, margin: { t: 40, b: 40, l: 50, r: 30 },
+            xaxis: { gridcolor: 'rgba(255,255,255,0.03)', zerolinecolor: '#fff', tickvals: [-2*PI, -PI, 0, PI, 2*PI], ticktext: ['-2π', '-π', '0', 'π', '2π'] },
+            yaxis: { gridcolor: 'rgba(255,255,255,0.03)', zerolinecolor: '#fff', range: [-5, 5] },
             showlegend: false
         };
 
-        // 원본 그래프
-        const baseShapes = [
-            { type: 'rect', x0: 0, x1: baseP, y0: -10, y1: 10, fillcolor: 'rgba(255,255,255,0.1)', line: {width: 0} }
-        ];
-        if(currentMode !== 'tan') {
-            baseShapes.push({ type: 'line', x0: -16, x1: 16, y0: 1, y1: 1, line: { color: '#f87171', dash: 'dot', width: 1 } });
-            baseShapes.push({ type: 'line', x0: -16, x1: 16, y0: -1, y1: -1, line: { color: '#60a5fa', dash: 'dot', width: 1 } });
-        }
+        const shapesB = [{ type: 'rect', x0: 0, x1: (mode==='tan'?PI:2*PI), y0: -10, y1: 10, fillcolor: 'rgba(255,255,255,0.05)', line: {width: 0} }];
+        const shapesD = [{ type: 'rect', x0: c, x1: c + period, y0: -10, y1: 10, fillcolor: 'rgba(255,255,255,0.12)', line: {width: 0} }];
 
-        Plotly.react('plot-base', [{ x, y: yBase, line: { color: 'rgba(255,255,255,0.4)', width: 2 } }], {
-            ...layoutConfig, title: `기본 함수: y = ${currentMode}(x)`, shapes: baseShapes
-        });
-
-        // 변형 그래프
-        const dynShapes = [
-            { type: 'rect', x0: c, x1: c + period, y0: -10, y1: 10, fillcolor: 'rgba(255,255,255,0.2)', line: {width: 0} }
-        ];
-        if(currentMode === 'tan') {
-            for(let n=-2; n<=2; n++) {
-                let asymp = (PI/2 + n*PI + b*c) / b;
-                dynShapes.push({ type: 'line', x0: asymp, x1: asymp, y0: -5, y1: 5, line: { color: '#ff4d4d', dash: 'dash', width: 1 } });
-            }
-        } else {
-            dynShapes.push({ type: 'line', x0: -16, x1: 16, y0: a+d, y1: a+d, line: { color: '#f87171', dash: 'dot', width: 1.5 } });
-            dynShapes.push({ type: 'line', x0: -16, x1: 16, y0: -a+d, y1: -a+d, line: { color: '#60a5fa', dash: 'dot', width: 1.5 } });
-        }
-
-        Plotly.react('plot-dynamic', [{ x, y: yDyn, line: { color: '#56bbff', width: 3 } }], {
-            ...layoutConfig, title: `조작 결과: y = ${a}${currentMode}(${b}(x - ${(c/PI).toFixed(1)}π)) + ${d}`,
-            shapes: dynShapes
-        });
+        Plotly.react('p-base', [{ x, y: yB, line: { color: 'rgba(255,255,255,0.3)', width: 2 } }], { ...layout, title: `기본: y = ${mode}(x)`, shapes: shapesB });
+        Plotly.react('p-dyn', [{ x, y: yD, line: { color: '#4dbfff', width: 3 } }], { ...layout, title: `변형 결과 그래프`, shapes: shapesD });
     }
 
-    function updateMode(m) {
-        currentMode = m;
+    function setMode(m) {
+        mode = m;
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.getElementById('tab-' + m).classList.add('active');
-        draw();
+        document.getElementById('t-' + m).classList.add('active');
+        render();
+    }
+
+    function fullReset() {
+        document.getElementById('i-a').value = 1; document.getElementById('i-b').value = 1;
+        document.getElementById('i-c').value = 0; document.getElementById('i-d').value = 0;
+        document.getElementById('abs-outer').checked = false;
+        document.getElementById('abs-inner').checked = false;
+        render(); resetView();
     }
 
     function resetView() {
-        const range = { 'xaxis.range': [-PI*2.5, PI*2.5], 'yaxis.range': [-5, 5] };
-        Plotly.relayout('plot-base', range); Plotly.relayout('plot-dynamic', range);
+        const r = { 'xaxis.range': [-PI*2.5, PI*2.5], 'yaxis.range': [-5, 5] };
+        Plotly.relayout('p-base', r); Plotly.relayout('p-dyn', r);
     }
 
-    function resetParams() {
-        document.getElementById('input-a').value = 1;
-        document.getElementById('input-b').value = 1;
-        document.getElementById('input-c').value = 0;
-        document.getElementById('input-d').value = 0;
-        draw(); resetView();
-    }
-
-    window.onload = () => { draw(); resetView(); };
-    ['input-a', 'input-b', 'input-c', 'input-d'].forEach(id => document.getElementById(id).oninput = draw);
+    window.onload = () => { render(); resetView(); };
+    ['i-a', 'i-b', 'i-c', 'i-d', 'abs-outer', 'abs-inner'].forEach(id => {
+        document.getElementById(id).oninput = render;
+        document.getElementById(id).onchange = render;
+    });
 </script>
 </body>
 </html>
