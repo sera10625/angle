@@ -1,881 +1,143 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>삼각함수 인터랙티브 학습</title>
-
-    <!-- KaTeX for Math Equations -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
-        onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
-
-    <!-- Plotly.js for Graphing -->
+    <title>삼각함수 탐구 도구 - 최종본</title>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
     <style>
-        :root {
-            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            --primary-color: #38bdf8;
-            --secondary-color: #c084fc;
-            --text-main: #f8fafc;
-            --text-muted: #cbd5e1;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-gradient);
-            color: var(--text-main);
-            min-height: 100vh;
-            padding: 2rem;
-            line-height: 1.6;
-        }
-
-        .app-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-
-        .glass-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            box-shadow: var(--glass-shadow);
-        }
-
-        header {
-            padding: 1.5rem 2rem;
-            text-align: center;
-        }
-
-        header h1 {
-            font-size: 2.25rem;
-            font-weight: 700;
-            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
-        }
-
-        .main-layout {
-            display: flex;
-            gap: 2rem;
-            align-items: flex-start;
-        }
-
-        .side-nav {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            padding: 1.5rem 1rem;
-            min-width: 100px;
-        }
-
-        .nav-btn {
-            background: transparent;
-            border: 1px solid var(--glass-border);
-            color: var(--text-muted);
-            padding: 0.75rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .nav-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-main);
-        }
-
-        .nav-btn.active {
-            background: var(--primary-color);
-            color: #0f172a;
-            border-color: var(--primary-color);
-        }
-
-        .content-grid {
-            flex: 1;
-            display: grid;
-            grid-template-columns: 1fr 1.2fr;
-            gap: 2rem;
-        }
-
-        .panel {
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--glass-border);
-            padding-bottom: 0.5rem;
-        }
-
-        .panel-header h2 {
-            font-size: 1.25rem;
-            color: var(--primary-color);
-        }
-
-        .formula {
-            font-size: 1.15rem;
-            color: var(--secondary-color);
-        }
-
-        .plot-wrapper {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
-            padding: 1rem;
-            height: 400px;
-            position: relative;
-        }
-
-        .plot-container {
-            width: 100%;
-            height: 100%;
-        }
-
-        .info-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .info-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 1.1rem;
-        }
-
-        .info-item span:first-child {
-            color: var(--text-muted);
-        }
-
-        .highlight-val {
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
-        .formula-small {
-            color: var(--secondary-color);
-            font-size: 1.2rem;
-        }
-
-        .controls-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .sliders-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-        }
-
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .control-group label {
-            font-size: 0.95rem;
-            color: var(--text-muted);
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .control-group label span {
-            color: var(--text-main);
-            font-weight: 600;
-        }
-
-        .hint {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            text-align: right;
-            margin-top: -4px;
-        }
-
-        /* Custom Range Slider */
-        input[type=range] {
-            -webkit-appearance: none;
-            width: 100%;
-            background: transparent;
-        }
-
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 18px;
-            width: 18px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            cursor: pointer;
-            margin-top: -7px;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
-            transition: transform 0.1s;
-        }
-
-        input[type=range]::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-        }
-
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 4px;
-            cursor: pointer;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 2px;
-        }
-
-        /* Checkboxes */
-        .options-group {
-            display: flex;
-            gap: 2rem;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 12px;
-            border: 1px solid var(--glass-border);
-        }
-
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            cursor: pointer;
-            font-size: 0.95rem;
-            user-select: none;
-        }
-
-        .checkbox-label input {
-            display: none;
-        }
-
-        .custom-checkbox {
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--primary-color);
-            border-radius: 4px;
-            display: inline-block;
-            position: relative;
-            transition: all 0.2s;
-        }
-
-        .checkbox-label input:checked+.custom-checkbox {
-            background: var(--primary-color);
-        }
-
-        .checkbox-label input:checked+.custom-checkbox::after {
-            content: '';
-            position: absolute;
-            left: 6px;
-            top: 2px;
-            width: 5px;
-            height: 10px;
-            border: solid white;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-        }
-
-        /* Action Buttons */
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-top: 0.5rem;
-        }
-
-        .action-btn {
-            flex: 1;
-            padding: 0.85rem 1rem;
-            border-radius: 8px;
-            border: none;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .primary-btn {
-            background: var(--primary-color);
-            color: #0f172a;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
-        }
-
-        .primary-btn:hover {
-            background: #7dd3fc;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.4);
-        }
-
-        .secondary-btn {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-main);
-            border: 1px solid var(--glass-border);
-        }
-
-        .secondary-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-        }
-
-        @media (max-width: 1024px) {
-            .main-layout {
-                flex-direction: column;
-            }
-
-            .side-nav {
-                flex-direction: row;
-                justify-content: center;
-            }
-
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        :root { --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #38bdf8; --danger: #ef4444; }
+        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 320px; padding: 25px; background: #020617; border-right: 1px solid #1e293b; overflow-y: auto; z-index: 10; }
+        .main-content { flex: 1; display: flex; flex-direction: column; padding: 15px; gap: 15px; background: var(--bg); }
+        .plot-box { flex: 1; background: var(--card); border-radius: 12px; position: relative; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .control-group { margin-bottom: 20px; background: #334155; padding: 15px; border-radius: 8px; }
+        label { display: block; margin-bottom: 8px; font-size: 0.9rem; font-weight: 600; }
+        input[type="range"] { width: 100%; cursor: pointer; margin-bottom: 5px; }
+        .val-text { float: right; color: var(--accent); font-weight: bold; }
+        .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        button { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-view { background: var(--accent); color: #020617; }
+        .btn-reset { background: var(--danger); color: white; }
+        button:hover { transform: translateY(-2px); opacity: 0.9; }
+        .tabs { display: flex; gap: 5px; margin-bottom: 20px; }
+        .tab { flex: 1; padding: 10px; background: #334155; text-align: center; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .tab.active { background: var(--accent); color: #020617; }
     </style>
 </head>
-
 <body>
-    <div class="app-container">
-        <header class="glass-panel">
-            <h1>삼각함수 그래프 탐구</h1>
-            <p>기본 형태인 $y = \sin(x)$ 와 변형된 삼각함수의 그래프를 조작하며 비교해 보세요.</p>
-        </header>
 
-        <div class="main-layout">
-            <nav class="side-nav glass-panel">
-                <button class="nav-btn active" data-func="sin">Sin</button>
-                <button class="nav-btn" data-func="cos">Cos</button>
-                <button class="nav-btn" data-func="tan">Tan</button>
-            </nav>
-            <main class="content-grid">
-                <!-- Left Panel (Base Graph) -->
-                <section class="panel glass-panel left-panel">
-                    <div class="panel-header">
-                        <h2>기본 그래프</h2>
-                        <div id="base-panel-formula" class="formula"></div>
-                    </div>
-                    <div class="plot-wrapper">
-                        <div id="base-plot" class="plot-container"></div>
-                    </div>
-                    <div class="info-card">
-                        <div class="info-item"><span>주기</span> <span id="base-period" class="highlight-val"></span>
-                        </div>
-                        <div class="info-item stat-max-min"><span>최댓값</span> <span id="base-max"
-                                class="highlight-val">1</span></div>
-                        <div class="info-item stat-max-min"><span>최솟값</span> <span id="base-min"
-                                class="highlight-val">-1</span></div>
-                        <div class="info-item stat-asym" style="display: none;"><span>점근선의 방정식</span> <span
-                                id="base-asymptote" class="highlight-val"></span></div>
-                    </div>
-                </section>
-
-                <!-- Right Panel (Interactive Graph) -->
-                <section class="panel glass-panel right-panel">
-                    <div class="panel-header">
-                        <h2>변형 그래프</h2>
-                        <div id="dynamic-panel-formula" class="formula"></div>
-                    </div>
-
-                    <div class="plot-wrapper">
-                        <div id="dynamic-plot" class="plot-container"></div>
-                    </div>
-
-                    <div class="controls-container">
-                        <div class="sliders-grid">
-                            <div class="control-group">
-                                <label for="slider-a">진폭 (a): <span id="val-a">1</span></label>
-                                <input type="range" id="slider-a" min="-5" max="5" step="0.1" value="1">
-                            </div>
-                            <div class="control-group">
-                                <label for="slider-b">주기 영향 (b): <span id="val-b">1</span></label>
-                                <input type="range" id="slider-b" min="-5" max="5" step="0.1" value="1">
-                            </div>
-                            <div class="control-group">
-                                <label for="slider-c">x축 평행이동 (c): <span id="val-c">0</span></label>
-                                <input type="range" id="slider-c" min="-2" max="2" step="0.25" value="0">
-                                <div class="hint">(단위: $\pi$)</div>
-                            </div>
-                            <div class="control-group">
-                                <label for="slider-d">y축 평행이동 (d): <span id="val-d">0</span></label>
-                                <input type="range" id="slider-d" min="-5" max="5" step="0.1" value="0">
-                            </div>
-                        </div>
-
-                        <div class="options-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="opt-a">
-                                <span class="custom-checkbox"></span>
-                                전체 절댓값 $y = |f(x)|$
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="opt-b">
-                                <span class="custom-checkbox"></span>
-                                변수 절댓값 $y = f(|x|)$
-                            </label>
-                        </div>
-
-                        <div class="action-buttons">
-                            <button id="btn-reset-all" class="action-btn primary-btn">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-                                    <path d="M3 3v5h5" />
-                                </svg>
-                                전체 설정 초기화
-                            </button>
-                            <button id="btn-reset-view" class="action-btn secondary-btn">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="11" cy="11" r="8" />
-                                    <path d="m21 21-4.3-4.3" />
-                                    <path d="M8 11h6" />
-                                    <path d="M11 8v6" />
-                                </svg>
-                                그래프 보기 리셋
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="info-card results-card">
-                        <div class="info-item"><span>현재 함수식</span> <span id="res-formula" class="formula-small"></span>
-                        </div>
-                        <div class="info-item"><span>주기 (Period)</span> <span id="res-period"
-                                class="highlight-val"></span></div>
-                        <div class="info-item stat-max-min"><span>최댓값 (Max)</span> <span id="res-max"
-                                class="highlight-val"></span></div>
-                        <div class="info-item stat-max-min"><span>최솟값 (Min)</span> <span id="res-min"
-                                class="highlight-val"></span></div>
-                        <div class="info-item stat-asym" style="display: none;"><span>점근선의 방정식</span> <span
-                                id="res-asymptote" class="highlight-val"></span></div>
-                    </div>
-                </section>
-            </main>
-        </div>
+<div class="sidebar">
+    <h2 style="margin-top:0; color:var(--accent);">삼각함수 탐구</h2>
+    <div class="tabs">
+        <div id="t-sin" class="tab active" onclick="setMode('sin')">Sin</div>
+        <div id="t-cos" class="tab" onclick="setMode('cos')">Cos</div>
+        <div id="t-tan" class="tab" onclick="setMode('tan')">Tan</div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            let currentFunc = 'sin';
+    <div class="control-group">
+        <label>진폭 (a): <span id="a-v" class="val-text">1</span></label>
+        <input type="range" id="a" min="0.1" max="3" step="0.1" value="1">
+        
+        <label>주기 영향 (b): <span id="b-v" class="val-text">1</span></label>
+        <input type="range" id="b" min="0.1" max="3" step="0.1" value="1">
+        
+        <label>x축 이동 (c): <span id="c-v" class="val-text">0</span></label>
+        <input type="range" id="c" min="-3.14" max="3.14" step="0.1" value="0">
+        
+        <label>y축 이동 (d): <span id="d-v" class="val-text">0</span></label>
+        <input type="range" id="d" min="-2" max="2" step="0.1" value="0">
+    </div>
 
-            const DOM = {
-                sliderA: document.getElementById('slider-a'),
-                sliderB: document.getElementById('slider-b'),
-                sliderC: document.getElementById('slider-c'),
-                sliderD: document.getElementById('slider-d'),
-                valA: document.getElementById('val-a'),
-                valB: document.getElementById('val-b'),
-                valC: document.getElementById('val-c'),
-                valD: document.getElementById('val-d'),
-                optA: document.getElementById('opt-a'),
-                optB: document.getElementById('opt-b'),
-                btnResetAll: document.getElementById('btn-reset-all'),
-                btnResetView: document.getElementById('btn-reset-view'),
-                dynamicPanelFormula: document.getElementById('dynamic-panel-formula'),
-                resFormula: document.getElementById('res-formula'),
-                resPeriod: document.getElementById('res-period'),
-                resMax: document.getElementById('res-max'),
-                resMin: document.getElementById('res-min'),
-                resAsym: document.getElementById('res-asymptote'),
-                basePanelFormula: document.getElementById('base-panel-formula'),
-                basePeriod: document.getElementById('base-period'),
-                baseAsym: document.getElementById('base-asymptote'),
-                navBtns: document.querySelectorAll('.nav-btn'),
-                statMaxMins: document.querySelectorAll('.stat-max-min'),
-                statAsyms: document.querySelectorAll('.stat-asym')
-            };
+    <div class="btn-group">
+        <button class="btn-view" onclick="resetV()">그래프 크기 리셋</button>
+        <button class="btn-reset" onclick="resetA()">전체 설정 초기화</button>
+    </div>
+</div>
 
-            const plotLayout = {
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)',
-                margin: { t: 20, r: 20, b: 40, l: 40 },
-                xaxis: {
-                    gridcolor: 'rgba(255,255,255,0.1)',
-                    zerolinecolor: 'rgba(255,255,255,0.5)',
-                    tickfont: { color: '#cbd5e1' },
-                    tickvals: [-2 * Math.PI, -1.5 * Math.PI, -Math.PI, -0.5 * Math.PI, 0, 0.5 * Math.PI, Math.PI, 1.5 * Math.PI, 2 * Math.PI],
-                    ticktext: ['-2π', '-3π/2', '-π', '-π/2', '0', 'π/2', 'π', '3π/2', '2π'],
-                    range: [-2 * Math.PI - 0.5, 2 * Math.PI + 0.5]
-                },
-                yaxis: {
-                    gridcolor: 'rgba(255,255,255,0.1)',
-                    zerolinecolor: 'rgba(255,255,255,0.5)',
-                    tickfont: { color: '#cbd5e1' },
-                    range: [-5, 5]
-                },
-                showlegend: false
-            };
+<div class="main-content">
+    <div id="p1" class="plot-box"></div>
+    <div id="p2" class="plot-box"></div>
+</div>
 
-            const config = { responsive: true, displayModeBar: false };
+<script>
+    let mode = 'sin';
+    const ids = ['a', 'b', 'c', 'd'];
 
-            const getBaseDataAndTraces = () => {
-                const x = [];
-                const y = [];
-                const points = 2000;
-                const xMin = -2 * Math.PI;
-                const xMax = 2 * Math.PI;
-                const step = (xMax - xMin) / points;
+    function render() {
+        const a = parseFloat(document.getElementById('a').value);
+        const b = parseFloat(document.getElementById('b').value);
+        const c = parseFloat(document.getElementById('c').value);
+        const d = parseFloat(document.getElementById('d').value);
 
-                for (let i = 0; i <= points; i++) {
-                    let cx = xMin + i * step;
-                    x.push(cx);
-                    let cy;
-                    if (currentFunc === 'sin') cy = Math.sin(cx);
-                    else if (currentFunc === 'cos') cy = Math.cos(cx);
-                    else if (currentFunc === 'tan') cy = Math.tan(cx);
+        ids.forEach(id => document.getElementById(id+'-v').innerText = document.getElementById(id).value);
 
-                    if (currentFunc === 'tan' && Math.abs(cy) > 20) {
-                        cy = null;
-                    }
-                    y.push(cy);
-                }
+        const x = [], y1 = [], y2 = [];
+        for (let i = -15; i <= 15; i += 0.05) {
+            x.push(i);
+            y1.push(Math[mode](i));
+            const v = a * Math[mode](b * (i - c)) + d;
+            y2.push(v);
+        }
 
-                const traces = [{ x, y, type: 'scatter', mode: 'lines', line: { color: '#38bdf8', width: 3 }, name: '기본' }];
+        const period = (mode === 'tan' ? Math.PI : 2 * Math.PI) / b;
+        const max = (a + d).toFixed(2);
+        const min = (-a + d).toFixed(2);
 
-                if (currentFunc === 'tan') {
-                    for (let n = -3; n <= 3; n++) {
-                        let ax = n * Math.PI + Math.PI / 2;
-                        if (ax >= xMin && ax <= xMax) {
-                            traces.push({
-                                x: [ax, ax],
-                                y: [-20, 20],
-                                type: 'scatter', mode: 'lines',
-                                line: { color: 'rgba(255,255,255,0.3)', width: 1.5, dash: 'dot' },
-                                hoverinfo: 'skip', showlegend: false
-                            });
-                        }
-                    }
-                }
-                return traces;
-            };
+        const commonLayout = {
+            paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+            font: { color: '#fff' }, margin: { t: 45, b: 35, l: 50, r: 50 },
+            xaxis: { gridcolor: '#1e293b', zerolinecolor: '#64748b' },
+            yaxis: { gridcolor: '#1e293b', zerolinecolor: '#64748b', range: [-5, 5] },
+            showlegend: false
+        };
 
-            Plotly.newPlot('base-plot', getBaseDataAndTraces(), plotLayout, config);
-            Plotly.newPlot('dynamic-plot', [{ x: [], y: [], type: 'scatter' }], plotLayout, config);
-
-            const formatNumber = (num) => Number.isInteger(num) ? num.toString() : num.toFixed(2).replace(/\.?0+$/, '');
-
-            const formatAsymptote = (b, cInput, isOptB) => {
-                if (b === 0) return '\\text{없음}';
-                let lhs = isOptB ? '|x|' : 'x';
-
-                let t1 = '';
-                if (b === 1) t1 = 'n\\pi';
-                else if (b === -1) t1 = '-n\\pi';
-                else t1 = `\\frac{n\\pi}{${formatNumber(b)}}`;
-
-                let t2 = '';
-                let db = 2 * b;
-                if (db === 1) t2 = '+ \\pi';
-                else if (db === -1) t2 = '- \\pi';
-                else if (db > 0) t2 = `+ \\frac{\\pi}{${formatNumber(db)}}`;
-                else t2 = `- \\frac{\\pi}{${formatNumber(Math.abs(db))}}`;
-
-                let t3 = '';
-                if (cInput > 0) t3 = `+ ${cInput === 1 ? '\\pi' : formatNumber(cInput) + '\\pi'}`;
-                else if (cInput < 0) t3 = ` ${cInput === -1 ? '-\\pi' : formatNumber(cInput) + '\\pi'}`;
-
-                return `${lhs} = ${t1} ${t2} ${t3}`;
-            };
-
-            const formatFormula = (func, a, b, cInput, d, isOptA, isOptB) => {
-                let innerX = isOptB ? '|x|' : 'x';
-
-                let bStr = '';
-                if (b === 1) bStr = '';
-                else if (b === -1) bStr = '-';
-                else bStr = formatNumber(b);
-
-                let cStr = '';
-                if (cInput > 0) {
-                    cStr = cInput === 1 ? ' - \\pi' : ` - ${formatNumber(cInput)}\\pi`;
-                } else if (cInput < 0) {
-                    cStr = cInput === -1 ? ' + \\pi' : ` + ${formatNumber(Math.abs(cInput))}\\pi`;
-                }
-
-                let innerTerm = '';
-                if (b === 0) innerTerm = '0';
-                else if (cInput === 0) innerTerm = `${bStr}${innerX}`;
-                else innerTerm = `${bStr}(${innerX}${cStr})`;
-
-                let term = `\\${func}(${innerTerm})`;
-
-                let aStr = '';
-                if (a === 1) aStr = '';
-                else if (a === -1) aStr = '-';
-                else if (a === 0) {
-                    term = '';
-                    aStr = '0';
-                } else aStr = formatNumber(a);
-
-                let fx = a === 0 ? '0' : `${aStr}${term}`;
-
-                let dStr = '';
-                if (d > 0) dStr = (fx === '0' ? `${formatNumber(d)}` : ` + ${formatNumber(d)}`);
-                else if (d < 0) dStr = (fx === '0' ? `-${formatNumber(Math.abs(d))}` : ` - ${formatNumber(Math.abs(d))}`);
-
-                let fullFx = fx === '0' ? (d === 0 ? '0' : dStr) : fx + dStr;
-
-                if (isOptA) {
-                    fullFx = `|${fullFx}|`;
-                }
-
-                return `y = ${fullFx}`;
-            };
-
-            const updateBaseInfo = () => {
-                let baseFormulaStr = '';
-                let basePeriodStr = '';
-                if (currentFunc === 'sin') {
-                    baseFormulaStr = 'y = \\sin(x)';
-                    basePeriodStr = '2\\pi';
-                } else if (currentFunc === 'cos') {
-                    baseFormulaStr = 'y = \\cos(x)';
-                    basePeriodStr = '2\\pi';
-                } else {
-                    baseFormulaStr = 'y = \\tan(x)';
-                    basePeriodStr = '\\pi';
-                    katex.render('x = n\\pi + \\frac{\\pi}{2}', DOM.baseAsym, { throwOnError: false, displayMode: false });
-                }
-
-                katex.render(baseFormulaStr, DOM.basePanelFormula, { throwOnError: false, displayMode: true });
-                katex.render(basePeriodStr, DOM.basePeriod, { throwOnError: false, displayMode: false });
-            };
-
-            const updateInfo = (a, b, cInput, d, isOptA, isOptB, finalMax, finalMin) => {
-                const formulaStr = formatFormula(currentFunc, a, b, cInput, d, isOptA, isOptB);
-                katex.render(formulaStr, DOM.resFormula, { throwOnError: false, displayMode: false });
-                katex.render(formulaStr, DOM.dynamicPanelFormula, { throwOnError: false, displayMode: true });
-
-                if (b === 0) {
-                    DOM.resPeriod.innerHTML = '없음';
-                } else {
-                    const defaultPeriod = currentFunc === 'tan' ? 1 : 2;
-                    const periodVal = (defaultPeriod / Math.abs(b));
-                    let periodStr = '';
-                    if (periodVal === 1) periodStr = '\\pi';
-                    else periodStr = `${formatNumber(periodVal)}\\pi`;
-                    katex.render(periodStr, DOM.resPeriod, { throwOnError: false, displayMode: false });
-                }
-
-                if (currentFunc === 'tan') {
-                    const asymStr = formatAsymptote(b, cInput, isOptB);
-                    katex.render(asymStr, DOM.resAsym, { throwOnError: false, displayMode: false });
-                } else {
-                    DOM.resMax.textContent = formatNumber(finalMax);
-                    DOM.resMin.textContent = formatNumber(finalMin);
-                }
-            };
-
-            const updateDynamicGraph = (forceResetView = false) => {
-                const isForceReset = forceResetView === true;
-                const a = parseFloat(DOM.sliderA.value);
-                const b = parseFloat(DOM.sliderB.value);
-                const cInput = parseFloat(DOM.sliderC.value);
-                const c = cInput * Math.PI;
-                const d = parseFloat(DOM.sliderD.value);
-                const isOptA = DOM.optA.checked;
-                const isOptB = DOM.optB.checked;
-
-                DOM.valA.textContent = a;
-                DOM.valB.textContent = b;
-                DOM.valC.textContent = cInput === 0 ? '0' : (cInput === 1 ? 'π' : (cInput === -1 ? '-π' : `${cInput}π`));
-                DOM.valD.textContent = d;
-
-                const xVals = [];
-                const yVals = [];
-                const points = 2000;
-                const xMin = -2 * Math.PI;
-                const xMax = 2 * Math.PI;
-                const step = (xMax - xMin) / points;
-
-                for (let i = 0; i <= points; i++) {
-                    let x = xMin + i * step;
-                    if (Math.abs(x) < 1e-10) x = 0;
-                    xVals.push(x);
-
-                    let currentX = x;
-                    if (isOptB) {
-                        currentX = Math.abs(currentX);
-                    }
-
-                    let y;
-                    let val = b * (currentX - c);
-                    if (currentFunc === 'sin') y = Math.sin(val);
-                    else if (currentFunc === 'cos') y = Math.cos(val);
-                    else if (currentFunc === 'tan') y = Math.tan(val);
-
-                    y = a * y + d;
-
-                    if (currentFunc === 'tan' && Math.abs(y) > 20) {
-                        y = null;
-                    } else if (isOptA && y !== null) {
-                        y = Math.abs(y);
-                    }
-                    yVals.push(y);
-                }
-
-                let minF = -Math.abs(a) + d;
-                let maxF = Math.abs(a) + d;
-                let finalMax, finalMin;
-
-                if (isOptA) {
-                    finalMax = Math.max(Math.abs(minF), Math.abs(maxF));
-                    if (minF <= 0 && maxF >= 0) {
-                        finalMin = 0;
-                    } else {
-                        finalMin = Math.min(Math.abs(minF), Math.abs(maxF));
-                    }
-                } else {
-                    finalMax = maxF;
-                    finalMin = minF;
-                }
-
-                let yRangeBound = 5;
-                if (currentFunc === 'tan') {
-                    yRangeBound = 5; // Force fixed scale for Tan
-                } else {
-                    const validY = yVals.filter(v => v !== null);
-                    const currentMaxY = Math.max(...validY);
-                    const currentMinY = Math.min(...validY);
-                    yRangeBound = Math.max(5, Math.abs(currentMaxY) + 1, Math.abs(currentMinY) + 1);
-                }
-
-                const dynamicLayout = {
-                    ...plotLayout,
-                    yaxis: {
-                        ...plotLayout.yaxis,
-                        range: [-yRangeBound, yRangeBound]
-                    }
-                };
-
-                const traces = [{ x: xVals, y: yVals, type: 'scatter', mode: 'lines', line: { color: '#c084fc', width: 3 }, name: '그래프' }];
-
-                if (currentFunc === 'tan') {
-                    if (b !== 0) {
-                        for (let n = -10; n <= 10; n++) {
-                            let ax_base = (n * Math.PI) / b + (Math.PI) / (2 * b) + c;
-                            let ax_list = [];
-                            if (isOptB) {
-                                if (ax_base > 0) {
-                                    ax_list.push(ax_base, -ax_base);
-                                } else if (Math.abs(ax_base) < 1e-10) {
-                                    ax_list.push(0);
-                                }
-                            } else {
-                                ax_list.push(ax_base);
-                            }
-
-                            ax_list.forEach(ax => {
-                                if (ax >= xMin && ax <= xMax) {
-                                    traces.push({
-                                        x: [ax, ax],
-                                        y: [-20, 20],
-                                        type: 'scatter', mode: 'lines',
-                                        line: { color: 'rgba(255,255,255,0.3)', width: 1.5, dash: 'dot' },
-                                        hoverinfo: 'skip', showlegend: false
-                                    });
-                                }
-                            });
-                        }
-                    }
-                } else {
-                    traces.push({ x: [xMin, xMax], y: [finalMax, finalMax], type: 'scatter', mode: 'lines', line: { color: 'rgba(244, 63, 94, 0.7)', width: 2, dash: 'dash' }, hoverinfo: 'skip', name: '최댓값' });
-                    traces.push({ x: [xMin, xMax], y: [finalMin, finalMin], type: 'scatter', mode: 'lines', line: { color: 'rgba(56, 189, 248, 0.7)', width: 2, dash: 'dash' }, hoverinfo: 'skip', name: '최솟값' });
-                }
-
-                Plotly.react('dynamic-plot', traces, dynamicLayout, config);
-
-                if (isForceReset) {
-                    Plotly.relayout('dynamic-plot', {
-                        'xaxis.range': [-2 * Math.PI - 0.5, 2 * Math.PI + 0.5],
-                        'yaxis.range': [-yRangeBound, yRangeBound]
-                    });
-                    Plotly.relayout('base-plot', {
-                        'xaxis.range': [-2 * Math.PI - 0.5, 2 * Math.PI + 0.5],
-                        'yaxis.range': [-5, 5]
-                    });
-                }
-
-                updateInfo(a, b, cInput, d, isOptA, isOptB, finalMax, finalMin);
-            };
-
-            DOM.navBtns.forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    DOM.navBtns.forEach(b => b.classList.remove('active'));
-                    e.target.classList.add('active');
-                    currentFunc = e.target.getAttribute('data-func');
-
-                    if (currentFunc === 'tan') {
-                        DOM.statMaxMins.forEach(el => el.style.display = 'none');
-                        DOM.statAsyms.forEach(el => el.style.display = 'flex');
-                    } else {
-                        DOM.statMaxMins.forEach(el => el.style.display = 'flex');
-                        DOM.statAsyms.forEach(el => el.style.display = 'none');
-                    }
-
-                    updateBaseInfo();
-                    Plotly.react('base-plot', getBaseDataAndTraces(), plotLayout, config);
-                    updateDynamicGraph(true); // Reset view when changing function as well
-                });
-            });
-
-            [DOM.sliderA, DOM.sliderB, DOM.sliderC, DOM.sliderD, DOM.optA, DOM.optB].forEach(el => {
-                el.addEventListener('input', updateDynamicGraph);
-                el.addEventListener('change', updateDynamicGraph);
-            });
-
-            DOM.btnResetAll.addEventListener('click', () => {
-                DOM.sliderA.value = 1;
-                DOM.sliderB.value = 1;
-                DOM.sliderC.value = 0;
-                DOM.sliderD.value = 0;
-                DOM.optA.checked = false;
-                DOM.optB.checked = false;
-                updateDynamicGraph(true);
-            });
-
-            DOM.btnResetView.addEventListener('click', () => {
-                updateDynamicGraph(true);
-            });
-
-            updateBaseInfo();
-            updateDynamicGraph();
+        // 원본 그래프
+        Plotly.react('p1', [{ x, y: y1, line: { color: '#64748b', width: 2 } }], {
+            ...commonLayout, title: `원본 그래프: y = ${mode}(x)`,
+            annotations: mode !== 'tan' ? [
+                { x: 0, y: 1, text: '최대: 1', showarrow: false, yshift: 10, font: {color: '#f87171'} },
+                { x: 0, y: -1, text: '최소: -1', showarrow: false, yshift: -10, font: {color: '#60a5fa'} }
+            ] : []
         });
-    </script>
-</body>
 
+        // 변형 그래프
+        Plotly.react('p2', [{ x, y: y2, line: { color: '#38bdf8', width: 3 } }], {
+            ...commonLayout, title: `변형 그래프: y = ${a}${mode}(${b}(x - ${c})) + ${d}`,
+            annotations: mode !== 'tan' ? [
+                { x: c, y: a + d, text: `최대: ${max}`, showarrow: true, arrowhead: 2, font: {color: '#f87171'} },
+                { x: c, y: -a + d, text: `최소: ${min}`, showarrow: true, arrowhead: 2, font: {color: '#60a5fa'} },
+                { x: c + period / 2, y: d - 0.5, text: `주기: ${period.toFixed(2)}`, showarrow: false, font: {color: '#fbbf24'} }
+            ] : [
+                { x: c + period / 2, y: -1, text: `주기: ${period.toFixed(2)}`, showarrow: false, font: {color: '#fbbf24'} }
+            ],
+            shapes: [
+                mode !== 'tan' ? { type: 'line', x0: -15, x1: 15, y0: a + d, y1: a + d, line: { color: '#f87171', dash: 'dot', width: 1 } } : {},
+                mode !== 'tan' ? { type: 'line', x0: -15, x1: 15, y0: -a + d, y1: -a + d, line: { color: '#60a5fa', dash: 'dot', width: 1 } } : {},
+                { type: 'line', x0: c, x1: c + period, y0: d - 0.2, y1: d - 0.2, line: { color: '#fbbf24', width: 4 } }
+            ]
+        });
+    }
+
+    function setMode(m) {
+        mode = m;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('t-' + m).classList.add('active');
+        render();
+    }
+
+    function resetV() {
+        const range = { 'xaxis.range': [-7, 7], 'yaxis.range': [-5, 5] };
+        Plotly.relayout('p1', range); Plotly.relayout('p2', range);
+    }
+
+    function resetA() {
+        ids.forEach(id => document.getElementById(id).value = id === 'a' || id === 'b' ? 1 : 0);
+        resetV(); render();
+    }
+
+    window.onload = render;
+    ids.forEach(id => document.getElementById(id).oninput = render);
+</script>
+</body>
 </html>
