@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>삼각함수 인터랙티브 학습</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- KaTeX for Math Equations -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+
+    <!-- Plotly.js for Graphing -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script defer src="main.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="glass-panel">
+            <h1>삼각함수 그래프 탐구</h1>
+            <p>기본 형태인 $y = \sin(x)$ 와 변형된 삼각함수의 그래프를 조작하며 비교해 보세요.</p>
+        </header>
+
+        <div class="main-layout">
+            <nav class="side-nav glass-panel">
+                <button class="nav-btn active" data-func="sin">Sin</button>
+                <button class="nav-btn" data-func="cos">Cos</button>
+                <button class="nav-btn" data-func="tan">Tan</button>
+            </nav>
+            <main class="content-grid">
+                <!-- Left Panel (Base Graph) -->
+                <section class="panel glass-panel left-panel">
+                    <div class="panel-header">
+                        <h2>기본 그래프</h2>
+                        <div id="base-panel-formula" class="formula"></div>
+                    </div>
+                    <div class="plot-wrapper">
+                        <div id="base-plot" class="plot-container"></div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-item"><span>주기</span> <span id="base-period" class="highlight-val"></span>
+                        </div>
+                        <div class="info-item stat-max-min"><span>최댓값</span> <span id="base-max"
+                                class="highlight-val">1</span></div>
+                        <div class="info-item stat-max-min"><span>최솟값</span> <span id="base-min"
+                                class="highlight-val">-1</span></div>
+                        <div class="info-item stat-asym" style="display: none;"><span>점근선의 방정식</span> <span
+                                id="base-asymptote" class="highlight-val"></span></div>
+                    </div>
+                </section>
+
+                <!-- Right Panel (Interactive Graph) -->
+                <section class="panel glass-panel right-panel">
+                    <div class="panel-header">
+                        <h2>변형 그래프</h2>
+                        <div id="dynamic-panel-formula" class="formula"></div>
+                    </div>
+
+                    <div class="plot-wrapper">
+                        <div id="dynamic-plot" class="plot-container"></div>
+                    </div>
+
+                    <div class="controls-container">
+                        <div class="sliders-grid">
+                            <div class="control-group">
+                                <label for="slider-a">진폭 (a): <span id="val-a">1</span></label>
+                                <input type="range" id="slider-a" min="-5" max="5" step="0.1" value="1">
+                            </div>
+                            <div class="control-group">
+                                <label for="slider-b">주기 영향 (b): <span id="val-b">1</span></label>
+                                <input type="range" id="slider-b" min="-5" max="5" step="0.1" value="1">
+                            </div>
+                            <div class="control-group">
+                                <label for="slider-c">x축 평행이동 (c): <span id="val-c">0</span></label>
+                                <input type="range" id="slider-c" min="-2" max="2" step="0.25" value="0">
+                                <div class="hint">(단위: $\pi$)</div>
+                            </div>
+                            <div class="control-group">
+                                <label for="slider-d">y축 평행이동 (d): <span id="val-d">0</span></label>
+                                <input type="range" id="slider-d" min="-5" max="5" step="0.1" value="0">
+                            </div>
+                        </div>
+
+                        <div class="options-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="opt-a">
+                                <span class="custom-checkbox"></span>
+                                전체 절댓값 $y = |f(x)|$
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="opt-b">
+                                <span class="custom-checkbox"></span>
+                                변수 절댓값 $y = f(|x|)$
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="info-card results-card">
+                        <div class="info-item"><span>현재 함수식</span> <span id="res-formula" class="formula-small"></span>
+                        </div>
+                        <div class="info-item"><span>주기 (Period)</span> <span id="res-period"
+                                class="highlight-val"></span></div>
+                        <div class="info-item stat-max-min"><span>최댓값 (Max)</span> <span id="res-max"
+                                class="highlight-val"></span></div>
+                        <div class="info-item stat-max-min"><span>최솟값 (Min)</span> <span id="res-min"
+                                class="highlight-val"></span></div>
+                        <div class="info-item stat-asym" style="display: none;"><span>점근선의 방정식</span> <span
+                                id="res-asymptote" class="highlight-val"></span></div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+</body>
+
+</html>
