@@ -3,23 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>삼각함수 탐구 도구 - 최종본</title>
+    <title>삼각함수 탐구 도구 - 수학교육용</title>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <style>
         :root { --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #38bdf8; --danger: #ef4444; }
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
         .sidebar { width: 320px; padding: 25px; background: #020617; border-right: 1px solid #1e293b; overflow-y: auto; z-index: 10; }
-        .main-content { flex: 1; display: flex; flex-direction: column; padding: 15px; gap: 15px; background: var(--bg); }
-        .plot-box { flex: 1; background: var(--card); border-radius: 12px; position: relative; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .main-content { flex: 1; display: flex; flex-direction: column; padding: 15px; gap: 15px; }
+        .plot-box { flex: 1; background: var(--card); border-radius: 12px; position: relative; }
         .control-group { margin-bottom: 20px; background: #334155; padding: 15px; border-radius: 8px; }
         label { display: block; margin-bottom: 8px; font-size: 0.9rem; font-weight: 600; }
-        input[type="range"] { width: 100%; cursor: pointer; margin-bottom: 5px; }
         .val-text { float: right; color: var(--accent); font-weight: bold; }
+        input[type="range"] { width: 100%; cursor: pointer; }
         .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
         button { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .btn-view { background: var(--accent); color: #020617; }
         .btn-reset { background: var(--danger); color: white; }
-        button:hover { transform: translateY(-2px); opacity: 0.9; }
         .tabs { display: flex; gap: 5px; margin-bottom: 20px; }
         .tab { flex: 1; padding: 10px; background: #334155; text-align: center; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .tab.active { background: var(--accent); color: #020617; }
@@ -43,7 +42,7 @@
         <input type="range" id="b" min="0.1" max="3" step="0.1" value="1">
         
         <label>x축 이동 (c): <span id="c-v" class="val-text">0</span></label>
-        <input type="range" id="c" min="-3.14" max="3.14" step="0.1" value="0">
+        <input type="range" id="c" min="-6.28" max="6.28" step="0.314" value="0">
         
         <label>y축 이동 (d): <span id="d-v" class="val-text">0</span></label>
         <input type="range" id="d" min="-2" max="2" step="0.1" value="0">
@@ -62,7 +61,7 @@
 
 <script>
     let mode = 'sin';
-    const ids = ['a', 'b', 'c', 'd'];
+    const PI = Math.PI;
 
     function render() {
         const a = parseFloat(document.getElementById('a').value);
@@ -70,51 +69,56 @@
         const c = parseFloat(document.getElementById('c').value);
         const d = parseFloat(document.getElementById('d').value);
 
-        ids.forEach(id => document.getElementById(id+'-v').innerText = document.getElementById(id).value);
+        document.getElementById('a-v').innerText = a;
+        document.getElementById('b-v').innerText = b;
+        document.getElementById('c-v').innerText = (c/PI).toFixed(2) + "π";
+        document.getElementById('d-v').innerText = d;
 
         const x = [], y1 = [], y2 = [];
         for (let i = -15; i <= 15; i += 0.05) {
             x.push(i);
             y1.push(Math[mode](i));
-            const v = a * Math[mode](b * (i - c)) + d;
-            y2.push(v);
+            y2.push(a * Math[mode](b * (i - c)) + d);
         }
 
-        const period = (mode === 'tan' ? Math.PI : 2 * Math.PI) / b;
-        const max = (a + d).toFixed(2);
-        const min = (-a + d).toFixed(2);
+        const period = (mode === 'tan' ? PI : 2 * PI) / b;
+        const origPeriod = mode === 'tan' ? PI : 2 * PI;
 
         const commonLayout = {
             paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
-            font: { color: '#fff' }, margin: { t: 45, b: 35, l: 50, r: 50 },
-            xaxis: { gridcolor: '#1e293b', zerolinecolor: '#64748b' },
+            font: { color: '#fff' }, margin: { t: 45, b: 45, l: 60, r: 60 },
+            xaxis: { 
+                gridcolor: '#1e293b', zerolinecolor: '#64748b',
+                tickmode: 'array',
+                tickvals: [-2*PI, -1.5*PI, -PI, -0.5*PI, 0, 0.5*PI, PI, 1.5*PI, 2*PI],
+                ticktext: ['-2π', '-3π/2', '-π', '-π/2', '0', 'π/2', 'π', '3π/2', '2π']
+            },
             yaxis: { gridcolor: '#1e293b', zerolinecolor: '#64748b', range: [-5, 5] },
             showlegend: false
         };
 
-        // 원본 그래프
-        Plotly.react('p1', [{ x, y: y1, line: { color: '#64748b', width: 2 } }], {
-            ...commonLayout, title: `원본 그래프: y = ${mode}(x)`,
-            annotations: mode !== 'tan' ? [
-                { x: 0, y: 1, text: '최대: 1', showarrow: false, yshift: 10, font: {color: '#f87171'} },
-                { x: 0, y: -1, text: '최소: -1', showarrow: false, yshift: -10, font: {color: '#60a5fa'} }
-            ] : []
+        // 원본 그래프 (가이드 점선 & 주기 영역 추가)
+        Plotly.react('p1', [{ x, y: y1, line: { color: '#94a3b8', width: 2 } }], {
+            ...commonLayout, title: `원본: y = ${mode}(x)`,
+            shapes: mode !== 'tan' ? [
+                { type: 'line', x0: -15, x1: 15, y0: 1, y1: 1, line: { color: '#f87171', dash: 'dot', width: 1 } },
+                { type: 'line', x0: -15, x1: 15, y0: -1, y1: -1, line: { color: '#60a5fa', dash: 'dot', width: 1 } },
+                { type: 'rect', x0: 0, x1: origPeriod, y0: -5, y1: 5, fillcolor: 'rgba(56, 189, 248, 0.1)', line: {width: 0} }
+            ] : [{ type: 'rect', x0: 0, x1: origPeriod, y0: -5, y1: 5, fillcolor: 'rgba(56, 189, 248, 0.1)', line: {width: 0} }]
         });
 
-        // 변형 그래프
+        // 변형 그래프 (이동된 주기 영역 & 최대최소 표시)
         Plotly.react('p2', [{ x, y: y2, line: { color: '#38bdf8', width: 3 } }], {
-            ...commonLayout, title: `변형 그래프: y = ${a}${mode}(${b}(x - ${c})) + ${d}`,
+            ...commonLayout, title: `변형: y = ${a}${mode}(${b}(x - ${ (c/PI).toFixed(1) }π)) + ${d}`,
             annotations: mode !== 'tan' ? [
-                { x: c, y: a + d, text: `최대: ${max}`, showarrow: true, arrowhead: 2, font: {color: '#f87171'} },
-                { x: c, y: -a + d, text: `최소: ${min}`, showarrow: true, arrowhead: 2, font: {color: '#60a5fa'} },
-                { x: c + period / 2, y: d - 0.5, text: `주기: ${period.toFixed(2)}`, showarrow: false, font: {color: '#fbbf24'} }
-            ] : [
-                { x: c + period / 2, y: -1, text: `주기: ${period.toFixed(2)}`, showarrow: false, font: {color: '#fbbf24'} }
-            ],
+                { x: c, y: a + d, text: `최대: ${(a+d).toFixed(1)}`, showarrow: true, arrowhead: 2, font: {color: '#f87171'} },
+                { x: c, y: -a + d, text: `최소: ${(-a+d).toFixed(1)}`, showarrow: true, arrowhead: 2, font: {color: '#60a5fa'} }
+            ] : [],
             shapes: [
-                mode !== 'tan' ? { type: 'line', x0: -15, x1: 15, y0: a + d, y1: a + d, line: { color: '#f87171', dash: 'dot', width: 1 } } : {},
-                mode !== 'tan' ? { type: 'line', x0: -15, x1: 15, y0: -a + d, y1: -a + d, line: { color: '#60a5fa', dash: 'dot', width: 1 } } : {},
-                { type: 'line', x0: c, x1: c + period, y0: d - 0.2, y1: d - 0.2, line: { color: '#fbbf24', width: 4 } }
+                mode !== 'tan' ? { type: 'line', x0: -15, x1: 15, y0: a + d, y1: a + d, line: { color: '#f87171', dash: 'dot' } } : {},
+                mode !== 'tan' ? { type: 'line', x0: -15, x1: 15, y0: -a + d, y1: -a + d, line: { color: '#60a5fa', dash: 'dot' } } : {},
+                { type: 'rect', x0: c, x1: c + period, y0: -5, y1: 5, fillcolor: 'rgba(251, 191, 36, 0.15)', line: {width: 0} },
+                { type: 'line', x0: c, x1: c + period, y0: d, y1: d, line: { color: '#fbbf24', width: 3 } }
             ]
         });
     }
@@ -127,17 +131,18 @@
     }
 
     function resetV() {
-        const range = { 'xaxis.range': [-7, 7], 'yaxis.range': [-5, 5] };
+        const range = { 'xaxis.range': [-PI*2.2, PI*2.2], 'yaxis.range': [-5, 5] };
         Plotly.relayout('p1', range); Plotly.relayout('p2', range);
     }
 
-    function resetA() {
-        ids.forEach(id => document.getElementById(id).value = id === 'a' || id === 'b' ? 1 : 0);
+    function resetAll() {
+        document.getElementById('a').value = 1; document.getElementById('b').value = 1;
+        document.getElementById('c').value = 0; document.getElementById('d').value = 0;
         resetV(); render();
     }
 
     window.onload = render;
-    ids.forEach(id => document.getElementById(id).oninput = render);
+    ['a', 'b', 'c', 'd'].forEach(id => document.getElementById(id).oninput = render);
 </script>
 </body>
 </html>
