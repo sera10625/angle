@@ -292,6 +292,30 @@
     ::-webkit-scrollbar-thumb:hover {
       background: rgba(255, 255, 255, 0.3);
     }
+
+    .resizer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 16px;
+      flex-shrink: 0;
+      cursor: row-resize;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin: -10px 0;
+      color: var(--text-muted);
+      font-size: 16px;
+      user-select: none;
+      transition: all 0.2s;
+      z-index: 5;
+    }
+
+    .resizer:hover,
+    .resizer:active {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--accent-color);
+    }
   </style>
 </head>
 
@@ -338,7 +362,7 @@
   </div>
 
   <div class="main-content">
-    <div class="graph-panel">
+    <div class="graph-panel" id="panel-original">
       <div class="panel-header">
         <h2>원본 그래프 <span id="eq-original" class="math-tex"></span></h2>
         <div class="stats">
@@ -350,7 +374,9 @@
       <div id="graph-original" class="graph-container"></div>
     </div>
 
-    <div class="graph-panel">
+    <div class="resizer" id="resizer">≡</div>
+
+    <div class="graph-panel" id="panel-transformed">
       <div class="panel-header">
         <h2>변형 그래프 <span id="eq-transformed" class="math-tex"></span></h2>
         <div class="stats">
@@ -586,8 +612,11 @@
     function getLayout(shapes, annotations) {
       let ticks = getTickVals();
       let axisAnnotations = [
-        { x: 1, y: 0, xref: 'paper', yref: 'y', text: '<i>x</i>', showarrow: false, xanchor: 'right', yanchor: 'bottom', font: { size: 16, color: '#fff' }, yshift: 5 },
-        { x: 0, y: 1, xref: 'x', yref: 'paper', text: '<i>y</i>', showarrow: false, xanchor: 'left', yanchor: 'top', font: { size: 16, color: '#fff' }, xshift: 5 }
+        { x: 1, y: 0, xref: 'paper', yref: 'y', text: '<i>x</i>', showarrow: false, xanchor: 'right', yanchor: 'bottom', font: { size: 16, color: '#fff' }, xshift: 0, yshift: 10 },
+        { x: 0, y: 1, xref: 'x', yref: 'paper', text: '<i>y</i>', showarrow: false, xanchor: 'left', yanchor: 'top', font: { size: 16, color: '#fff' }, xshift: 15, yshift: 0 },
+        { x: 0, y: 0, xref: 'x', yref: 'y', text: 'O', showarrow: false, xanchor: 'right', yanchor: 'top', font: { size: 16, color: '#fff' }, xshift: -5, yshift: -5 },
+        { x: 1, y: 0, xref: 'paper', yref: 'y', text: '', showarrow: true, ax: -20, ay: 0, arrowhead: 4, arrowsize: 1.5, arrowwidth: 3, arrowcolor: 'rgba(255,255,255,1)' },
+        { x: 0, y: 1, xref: 'x', yref: 'paper', text: '', showarrow: true, ax: 0, ay: 20, arrowhead: 4, arrowsize: 1.5, arrowwidth: 3, arrowcolor: 'rgba(255,255,255,1)' }
       ];
       return {
         margin: { t: 30, b: 30, l: 40, r: 20 },
@@ -598,12 +627,12 @@
           range: [-3 * Math.PI, 3 * Math.PI],
           tickvals: ticks.vals, ticktext: ticks.texts,
           showgrid: true, gridcolor: 'rgba(255,255,255,0.1)',
-          zeroline: true, zerolinecolor: 'rgba(255,255,255,0.8)', zerolinewidth: 2, fixedrange: false
+          zeroline: true, zerolinecolor: 'rgba(255,255,255,1)', zerolinewidth: 3, fixedrange: false
         },
         yaxis: {
           range: [-6, 6],
           showgrid: true, gridcolor: 'rgba(255,255,255,0.1)',
-          zeroline: true, zerolinecolor: 'rgba(255,255,255,0.8)', zerolinewidth: 2, fixedrange: false
+          zeroline: true, zerolinecolor: 'rgba(255,255,255,1)', zerolinewidth: 3, fixedrange: false
         },
         shapes: shapes, annotations: annotations.concat(axisAnnotations),
         dragmode: 'pan', hovermode: 'x'
@@ -682,10 +711,106 @@
         transAnnotations.push({ x: startX + p / 2, y: 1.05, xref: 'x', yref: 'paper', text: `주기: ${toUnicodePi(p / Math.PI)}`, showarrow: false, font: { color: 'white', size: 14 } });
       }
 
-      if (origStats.maxVal !== Infinity && origStats.maxVal !== null) origShapes.push({ type: 'line', x0: 0, x1: 1, xref: 'paper', y0: origStats.maxVal, y1: origStats.maxVal, line: { color: 'rgba(255, 100, 100, 0.5)', dash: 'dot', width: 2 } });
-      if (origStats.minVal !== -Infinity && origStats.minVal !== null) origShapes.push({ type: 'line', x0: 0, x1: 1, xref: 'paper', y0: origStats.minVal, y1: origStats.minVal, line: { color: 'rgba(100, 150, 255, 0.5)', dash: 'dot', width: 2 } });
-      if (transStats.maxVal !== Infinity && transStats.maxVal !== null) transShapes.push({ type: 'line', x0: 0, x1: 1, xref: 'paper', y0: transStats.maxVal, y1: transStats.maxVal, line: { color: 'rgba(255, 100, 100, 0.5)', dash: 'dot', width: 2 } });
-      if (transStats.minVal !== -Infinity && transStats.minVal !== null) transShapes.push({ type: 'line', x0: 0, x1: 1, xref: 'paper', y0: transStats.minVal, y1: transStats.minVal, line: { color: 'rgba(100, 150, 255, 0.5)', dash: 'dot', width: 2 } });
+      const addMaxMinLines = (stats, shapes, annotations) => {
+        if (stats.maxVal !== Infinity && stats.maxVal !== null) {
+          shapes.push({ type: 'line', x0: 0, x1: 1, xref: 'paper', y0: stats.maxVal, y1: stats.maxVal, line: { color: 'rgba(255, 100, 100, 0.5)', dash: 'dot', width: 2 } });
+          annotations.push({ x: 0, y: stats.maxVal, xref: 'x', yref: 'y', text: stats.maxStr, showarrow: false, xanchor: 'right', xshift: -5, font: { color: 'rgba(255, 150, 150, 1)', size: 12 } });
+        }
+        if (stats.minVal !== -Infinity && stats.minVal !== null) {
+          shapes.push({ type: 'line', x0: 0, x1: 1, xref: 'paper', y0: stats.minVal, y1: stats.minVal, line: { color: 'rgba(100, 150, 255, 0.5)', dash: 'dot', width: 2 } });
+          annotations.push({ x: 0, y: stats.minVal, xref: 'x', yref: 'y', text: stats.minStr, showarrow: false, xanchor: 'right', xshift: -5, font: { color: 'rgba(150, 200, 255, 1)', size: 12 } });
+        }
+      };
+      addMaxMinLines(origStats, origShapes, origAnnotations);
+      addMaxMinLines(transStats, transShapes, transAnnotations);
+
+      const processFeatures = (p_a, p_b, p_c, p_d, p_absAll, p_absX, stats, shapes, annotations) => {
+        let candidates = [0];
+        if (currentType === 'tan') {
+          let theta = Math.atan(-p_d / p_a);
+          for (let n = -40; n <= 40; n++) {
+            candidates.push((theta + n * Math.PI) / p_b + p_c * Math.PI);
+          }
+        } else {
+          for (let n = -40; n <= 40; n++) {
+            candidates.push((n * Math.PI / 2) / p_b + p_c * Math.PI);
+          }
+          if (Math.abs(p_d / p_a) <= 1) {
+            let theta = currentType === 'sin' ? Math.asin(-p_d / p_a) : Math.acos(-p_d / p_a);
+            for (let n = -40; n <= 40; n++) {
+              if (currentType === 'sin') {
+                candidates.push((theta + 2 * n * Math.PI) / p_b + p_c * Math.PI);
+                candidates.push((Math.PI - theta + 2 * n * Math.PI) / p_b + p_c * Math.PI);
+              } else {
+                candidates.push((theta + 2 * n * Math.PI) / p_b + p_c * Math.PI);
+                candidates.push((-theta + 2 * n * Math.PI) / p_b + p_c * Math.PI);
+              }
+            }
+          }
+        }
+
+        let allCandidates = [];
+        candidates.forEach(x => {
+          allCandidates.push(x);
+          if (p_absX) allCandidates.push(-x);
+        });
+
+        let epsilon = 0.0001;
+        let drawnX = new Set();
+
+        allCandidates.forEach(x => {
+          if (x < -6 * Math.PI || x > 6 * Math.PI) return;
+
+          let x_round = Math.round(x * 1000) / 1000;
+          if (drawnX.has(x_round)) return;
+          drawnX.add(x_round);
+
+          let x_in = p_absX ? Math.abs(x) : x;
+          let rawVal;
+          if (currentType === 'sin') rawVal = Math.sin(p_b * (x_in - p_c * Math.PI));
+          else if (currentType === 'cos') rawVal = Math.cos(p_b * (x_in - p_c * Math.PI));
+          else if (currentType === 'tan') rawVal = Math.tan(p_b * (x_in - p_c * Math.PI));
+
+          let rawY = p_a * rawVal + p_d;
+          let y = p_absAll ? Math.abs(rawY) : rawY;
+
+          let isMax = stats.maxVal !== null && stats.maxVal !== Infinity && Math.abs(y - stats.maxVal) < epsilon;
+          let isMin = stats.minVal !== null && stats.minVal !== -Infinity && Math.abs(y - stats.minVal) < epsilon;
+          let isRoot = Math.abs(y) < epsilon;
+
+          if (isMax || isMin || isRoot) {
+            if (isMax || isMin) {
+              shapes.push({
+                type: 'line', x0: x, x1: x, y0: 0, y1: y,
+                line: { color: isMax ? 'rgba(255, 100, 100, 0.7)' : 'rgba(100, 150, 255, 0.7)', dash: 'dot', width: 1.5 }
+              });
+            }
+
+            let textColor = isRoot ? '#aaffaa' : (isMax ? '#ffaaaa' : '#aaaaff');
+            if (isRoot && isMin) textColor = '#aaaaff';
+
+            annotations.push({
+              x: x, y: 0, xref: 'x', yref: 'y',
+              text: toUnicodePi(x / Math.PI),
+              showarrow: false,
+              yanchor: y >= -epsilon ? 'top' : 'bottom',
+              yshift: y >= -epsilon ? -5 : 5,
+              font: { color: textColor, size: 12 }
+            });
+
+            if (isRoot) {
+              annotations.push({
+                x: x, y: 0, xref: 'x', yref: 'y',
+                text: '●', showarrow: false, yshift: 1,
+                font: { color: textColor, size: 10 }
+              });
+            }
+          }
+        });
+      };
+
+      processFeatures(1, 1, 0, 0, false, false, origStats, origShapes, origAnnotations);
+      processFeatures(a, b, c, d, absAll, absX, transStats, transShapes, transAnnotations);
 
       if (currentType === 'tan') {
         for (let n = -15; n <= 15; n++) {
@@ -795,6 +920,54 @@
 
       drawGraphs();
       setupSync();
+
+      const resizer = document.getElementById('resizer');
+      const topPanel = document.getElementById('panel-original');
+      const bottomPanel = document.getElementById('panel-transformed');
+      const container = document.querySelector('.main-content');
+
+      let isResizing = false;
+      let resizeRAF = null;
+
+      const startResize = (e) => {
+        isResizing = true;
+        document.body.style.cursor = 'row-resize';
+      };
+
+      const doResize = (e) => {
+        if (!isResizing) return;
+        let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        let containerRect = container.getBoundingClientRect();
+        let newTopHeight = clientY - containerRect.top - 20;
+
+        if (newTopHeight < 150) newTopHeight = 150;
+        if (newTopHeight > containerRect.height - 200) newTopHeight = containerRect.height - 200;
+
+        topPanel.style.flex = `0 0 ${newTopHeight}px`;
+        bottomPanel.style.flex = '1 1 0%';
+
+        if (!resizeRAF) {
+          resizeRAF = requestAnimationFrame(() => {
+            Plotly.Plots.resize('graph-original');
+            Plotly.Plots.resize('graph-transformed');
+            resizeRAF = null;
+          });
+        }
+      };
+
+      const stopResize = () => {
+        isResizing = false;
+        document.body.style.cursor = 'default';
+      };
+
+      resizer.addEventListener('mousedown', startResize);
+      resizer.addEventListener('touchstart', startResize, { passive: true });
+
+      window.addEventListener('mousemove', doResize);
+      window.addEventListener('touchmove', doResize, { passive: true });
+
+      window.addEventListener('mouseup', stopResize);
+      window.addEventListener('touchend', stopResize);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
