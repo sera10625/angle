@@ -316,28 +316,32 @@
       background: rgba(255, 255, 255, 0.15);
       color: var(--accent-color);
     }
-    .top-brand{
+   .top-brand {
   position: fixed;
-  top: 14px;
-  left: 50%;
+  top: 20px;
+  /* 사이드바 너비 320px을 고려해 메인 콘텐츠 영역의 중앙에 배치 */
+  left: calc(50% + 160px); 
   transform: translateX(-50%);
-  z-index: 999;
+  z-index: 9999;
 
-  font-size: 0.95rem;
+  font-size: 0.75rem;
   letter-spacing: 2px;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: lowercase;
 
-  padding: 8px 18px;
-  border-radius: 999px;
-
-  background: rgba(15,16,21,0.55);
-  backdrop-filter: blur(10px);
-
-  border: 1px solid rgba(255,255,255,0.08);
-
-  box-shadow:
-    0 0 20px rgba(0,210,255,0.12),
-    inset 0 0 10px rgba(255,255,255,0.03);
+  padding: 8px 24px;
+  border-radius: 100px;
+  background: rgba(15, 16, 21, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none; /* 로고 때문에 그래프 클릭이 안 되는 현상 방지 */
+  white-space: nowrap;
 }
 
 .top-brand span{
@@ -350,6 +354,10 @@
 </head>
 
 <body>
+ <div class="top-brand">
+    powered by <span>MOONIVERSE MATH LAB</span>
+  </div>
+
   <div class="sidebar">
     <div class="header">
       <h1>삼각함수 탐구</h1>
