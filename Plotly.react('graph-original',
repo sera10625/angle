@@ -597,27 +597,33 @@
       let periodStr = "-", maxStr = "-", minStr = "-";
       let pBase = (type === 'tan' ? Math.PI : 2 * Math.PI) / Math.abs(b);
 
-      if (absX) {
-       if (type === 'cos' && Math.abs(c) < 0.001) {
+     if (absX) {
+  if (type === 'cos' && Math.abs(c) < 0.001) {
     if (absAll && Math.abs(d) < 0.001) {
       periodVal = pBase / 2;
     } else {
       periodVal = pBase;
     }
     periodStr = toFractionPi(periodVal / Math.PI);
-  } }else {
+  } else {
     periodVal = null;
     periodStr = "없음";
-      } else {
-        if (absAll) {
-          if (type === 'tan') periodVal = pBase;
-          else periodVal = (d === 0) ? pBase / 2 : pBase;
-        } else {
-          periodVal = pBase;
-        }
-        if (periodVal) periodStr = toFractionPi(periodVal / Math.PI);
-      }
+  }
+} else {
+  if (absAll) {
+    if (type === 'tan') {
+      periodVal = pBase;
+    } else {
+      periodVal = Math.abs(d) < 0.001 ? pBase / 2 : pBase;
+    }
+  } else {
+    periodVal = pBase;
+  }
 
+  if (periodVal) {
+    periodStr = toFractionPi(periodVal / Math.PI);
+  }
+}
       let M0 = Math.abs(a) + d;
       let m0 = -Math.abs(a) + d;
 
