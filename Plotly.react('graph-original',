@@ -1074,17 +1074,7 @@ sliders.forEach(id => {
   
 
       // 숫자를 직접 타이핑할 때
-      input.addEventListener('input', () => {
-        let val = parseFloat(input.value);
-        if (!isNaN(val)) {
-          // 입력값이 슬라이더 범위를 벗어나지 않게 보정
-          if (val < parseFloat(slider.min)) val = slider.min;
-          if (val > parseFloat(slider.max)) val = slider.max;
-          slider.value = val;
-          drawGraphs(); // 그래프 다시 그리기
-        }
-      });
-    });
+     
   </script>
 </body>
 
