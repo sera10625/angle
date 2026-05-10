@@ -1007,10 +1007,17 @@ sliders.forEach(id => {
       document.getElementById('check-absX').addEventListener('change', drawGraphs);
 
       document.getElementById('btn-reset-all').addEventListener('click', () => {
-        document.getElementById('slider-a').value = 1; document.getElementById('input-a').innerText = '1';
-        document.getElementById('slider-b').value = 1; document.getElementById('input-b').innerText = '1';
-        document.getElementById('slider-c').value = 0; document.getElementById('input-c').innerText = '0';
-        document.getElementById('slider-d').value = 0; document.getElementById('input-d').innerText = '0';
+       document.getElementById('slider-a').value = 1;
+document.getElementById('input-a').value = 1;
+
+document.getElementById('slider-b').value = 1;
+document.getElementById('input-b').value = 1;
+
+document.getElementById('slider-c').value = 0;
+document.getElementById('input-c').value = 0;
+
+document.getElementById('slider-d').value = 0;
+document.getElementById('input-d').value = 0;
         document.getElementById('check-absAll').checked = false;
         document.getElementById('check-absX').checked = false;
         drawGraphs();
