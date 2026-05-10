@@ -950,13 +950,43 @@
         });
       });
 
-      const sliders = ['a', 'b', 'c', 'd'];
-      sliders.forEach(id => {
-        document.getElementById(`slider-${id}`).addEventListener('input', (e) => {
-          document.getElementById(`val-${id}`).innerText = e.target.value;
-          drawGraphs();
-        });
-      });
+  const sliders = ['a', 'b', 'c', 'd'];
+
+sliders.forEach(id => {
+
+  const slider = document.getElementById(`slider-${id}`);
+  const input = document.getElementById(`input-${id}`);
+
+  // 슬라이더 움직일 때
+  slider.addEventListener('input', (e) => {
+    input.value = e.target.value;
+    drawGraphs();
+  });
+
+  // 숫자 직접 입력할 때
+  input.addEventListener('input', () => {
+
+    let val = parseFloat(input.value);
+
+    if (!isNaN(val)) {
+
+      // 최소 최대 범위 제한
+      if (val < parseFloat(slider.min)) {
+        val = slider.min;
+      }
+
+      if (val > parseFloat(slider.max)) {
+        val = slider.max;
+      }
+
+      slider.value = val;
+      input.value = val;
+
+      drawGraphs();
+    }
+  });
+});
+
 
       document.getElementById('check-absAll').addEventListener('change', drawGraphs);
       document.getElementById('check-absX').addEventListener('change', drawGraphs);
@@ -1031,9 +1061,7 @@
       init();
       setTimeout(updateMath, 500);
     });
-  </script>
-</body>
-// 슬라이더와 입력창 실시간 동기화 및 그래프 업데이트
+    // 슬라이더와 입력창 실시간 동기화 및 그래프 업데이트
     ['a', 'b', 'c', 'd'].forEach(id => {
       const slider = document.getElementById(`slider-${id}`);
       const input = document.getElementById(`input-${id}`);
@@ -1056,4 +1084,7 @@
         }
       });
     });
+  </script>
+</body>
+
 </html>
