@@ -917,10 +917,47 @@
       if (origRange) { layoutOrig.xaxis.range = origRange.xr; layoutOrig.yaxis.range = origRange.yr; }
       if (transRange) { layoutTrans.xaxis.range = transRange.xr; layoutTrans.yaxis.range = transRange.yr; }
 
-      let color = currentType === 'sin' ? '#00d2ff' : (currentType === 'cos' ? '#ff007a' : '#00ff88');
+   let graphColor;
 
-      Plotly.react('graph-original', [{ x: origData.x, y: origData.y, type: 'scatter', mode: 'lines', line: { color: color, width: 3 } }], layoutOrig, { displayModeBar: false });
-      Plotly.react('graph-transformed', [{ x: transData.x, y: transData.y, type: 'scatter', mode: 'lines', line: { color: color, width: 3 } }], layoutTrans, { displayModeBar: false });
+if (currentType === 'sin') {
+  graphColor = '#00d2ff';
+} else if (currentType === 'cos') {
+  graphColor = '#ff007a';
+} else {
+  graphColor = '#00ff88';
+}
+
+Plotly.react(
+  'graph-original',
+  [{
+    x: origData.x,
+    y: origData.y,
+    type: 'scatter',
+    mode: 'lines',
+    line: {
+      color: graphColor,
+      width: 3
+    }
+  }],
+  layoutOrig,
+  { displayModeBar: false }
+);
+
+Plotly.react(
+  'graph-transformed',
+  [{
+    x: transData.x,
+    y: transData.y,
+    type: 'scatter',
+    mode: 'lines',
+    line: {
+      color: graphColor,
+      width: 3
+    }
+  }],
+  layoutTrans,
+  { displayModeBar: false }
+);
 
       updateMath();
     }
