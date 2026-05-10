@@ -598,7 +598,16 @@
       let pBase = (type === 'tan' ? Math.PI : 2 * Math.PI) / Math.abs(b);
 
       if (absX) {
-        periodVal = null; periodStr = "없음";
+       if (type === 'cos' && Math.abs(c) < 0.001) {
+    if (absAll && Math.abs(d) < 0.001) {
+      periodVal = pBase / 2;
+    } else {
+      periodVal = pBase;
+    }
+    periodStr = toFractionPi(periodVal / Math.PI);
+  } }else {
+    periodVal = null;
+    periodStr = "없음";
       } else {
         if (absAll) {
           if (type === 'tan') periodVal = pBase;
@@ -1062,15 +1071,7 @@ sliders.forEach(id => {
       setTimeout(updateMath, 500);
     });
     // 슬라이더와 입력창 실시간 동기화 및 그래프 업데이트
-    ['a', 'b', 'c', 'd'].forEach(id => {
-      const slider = document.getElementById(`slider-${id}`);
-      const input = document.getElementById(`input-${id}`);
-
-      // 슬라이더를 밀 때
-      slider.addEventListener('input', () => {
-        input.value = slider.value;
-        drawGraphs(); // 그래프 다시 그리기
-      });
+  
 
       // 숫자를 직접 타이핑할 때
       input.addEventListener('input', () => {
