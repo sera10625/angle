@@ -919,7 +919,7 @@
 
       let color = currentType === 'sin' ? '#00d2ff' : (currentType === 'cos' ? '#ff007a' : '#00ff88');
 
-      Plotly.react('graph-original', [{ x: origData.x, y: origData.y, type: 'scatter', mode: 'lines', line: { color: '#00d2ff', width: 3 } }], layoutOrig, { displayModeBar: false });
+      Plotly.react('graph-original', [{ x: origData.x, y: origData.y, type: 'scatter', mode: 'lines', line: { color: color, width: 3 } }], layoutOrig, { displayModeBar: false });
       Plotly.react('graph-transformed', [{ x: transData.x, y: transData.y, type: 'scatter', mode: 'lines', line: { color: color, width: 3 } }], layoutTrans, { displayModeBar: false });
 
       updateMath();
