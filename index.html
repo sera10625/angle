@@ -486,7 +486,23 @@
       }
       return sign + (Math.round(val * 100) / 100) + 'π';
     }
+function toFraction(value) {
+  if (Number.isInteger(value)) return value.toString();
 
+  let sign = value < 0 ? '-' : '';
+  value = Math.abs(value);
+
+  for (let den = 1; den <= 20; den++) {
+    let num = Math.round(value * den);
+
+    if (Math.abs(value - num / den) < 0.0001) {
+      if (den === 1) return sign + num;
+      return sign + num + '/' + den;
+    }
+  }
+
+  return sign + (Math.round(value * 100) / 100);
+}
     function formatNTerm(coeff) {
       if (Math.abs(coeff - 1) < 0.001) return 'n\\pi';
       for (let den = 1; den <= 12; den++) {
@@ -640,8 +656,8 @@
         }
         maxVal = Math.round(maxVal * 1000) / 1000;
         minVal = Math.round(minVal * 1000) / 1000;
-        maxStr = maxVal.toString();
-        minStr = minVal.toString();
+        maxStr = toFraction(maxVal)();
+        minStr = toFraction(maxVal)();
       }
 
       let asymptoteStr = "", asymptoteFn = null, asymptoteVals = false;
