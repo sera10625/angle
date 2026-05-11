@@ -656,8 +656,8 @@ function toFraction(value) {
         }
         maxVal = Math.round(maxVal * 1000) / 1000;
         minVal = Math.round(minVal * 1000) / 1000;
-        maxStr = toFraction(maxVal)();
-        minStr = toFraction(maxVal)();
+        maxStr = toFraction(maxVal);
+        minStr = toFraction(maxVal);
       }
 
       let asymptoteStr = "", asymptoteFn = null, asymptoteVals = false;
